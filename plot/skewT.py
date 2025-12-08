@@ -20,13 +20,14 @@ def skewTlogP(var):
     prof = mpcalc.parcel_profile(var['p'], var['T'][0], var['Td'][0]).to('degC')
     lcl = mpcalc.lcl(var['p'][0], var['T'][0], var['Td'][0])
     CAPE, CIN = mpcalc.cape_cin(var['p'], var['T'], var['Td'], prof)
-    info = "$P_0=${:.1f} hPa\n$T_0=${:.1f} $^o$C\n$Td_0=${:.1f} $^o$C\n".format(var['p'][0].magnitude, var['T'][0].magnitude, var['Td'][0].magnitude)
+    info = ""
+    # info = "$P_0=${:.1f} hPa\n$T_0=${:.1f} $^o$C\n$Td_0=${:.1f} $^o$C\n".format(var['p'][0].magnitude, var['T'][0].magnitude, var['Td'][0].magnitude)
     info = info + "CAPE={:.1f} $J/kg$\n".format(CAPE.magnitude)
-    #info = info + "CIN={:.1f} $J/kg$\n".format(CIN.magnitude)
+    info = info + "CIN={:.1f} $J/kg$".format(CIN.magnitude)
     # print(list(ds.variables))
 
-    ft =  24
-    fig = plt.figure(figsize=(8, 12))
+    ft =  22
+    fig = plt.figure(figsize=(8, 7))
     skew = SkewT(fig, rotation=45)
 
     plt.tick_params(labelsize=ft-2)
@@ -41,7 +42,7 @@ def skewTlogP(var):
     v_barb = np.append([var["v"][0]], RAI.interpolate(var["v"]))
     # nbarb = 2
     # skew.plot_barbs(var['p'][::nbarb], var['u'][::nbarb], var['v'][::nbarb], xloc=1.07, plot_units=units.knots)
-    skew.plot_barbs(p_barb, u_barb, v_barb, xloc=1.07, plot_units=units.knots)
+    skew.plot_barbs(p_barb, u_barb, v_barb, xloc=1.11, plot_units=units.knots)
     # Add the relevant special lines
     pressure = np.arange(1000, 499, -50) * units('hPa')
     mixing_ratio = np.array([0.1, 0.2, 0.4, 0.6, 1, 1.5, 2, 3, 4,
@@ -53,7 +54,9 @@ def skewTlogP(var):
                                 colors='tab:green', linewidths=1)
     skew.plot_mixing_lines(pressure=pressure, mixing_ratio=mixing_ratio, linestyles='dotted',
                             colors='dodgerblue', linewidths=1)
+    skew.ax.set_ylabel("Pressure (hPa)", fontsize=ft-2)
+    skew.ax.set_xlabel("Temperature (\u00B0C)", fontsize=ft-2)
     skew.ax.set_ylim(1000, 100)
     skew.ax.set_xlim(-20, 40)
-    skew.ax.text(-43,180,info, fontsize=ft-4)
+    skew.ax.text(-68,130,info, fontsize=ft-4)
     return fig, skew
