@@ -21,13 +21,13 @@ def skewTlogP(var):
     lcl = mpcalc.lcl(var['p'][0], var['T'][0], var['Td'][0])
     CAPE, CIN = mpcalc.cape_cin(var['p'], var['T'], var['Td'], prof)
     info = ""
-    # info = "$P_0=${:.1f} hPa\n$T_0=${:.1f} $^o$C\n$Td_0=${:.1f} $^o$C\n".format(var['p'][0].magnitude, var['T'][0].magnitude, var['Td'][0].magnitude)
-    info = info + "CAPE={:.1f} $J/kg$\n".format(CAPE.magnitude)
-    info = info + "CIN={:.1f} $J/kg$".format(CIN.magnitude)
+    info = "$P_0=${:.1f} hPa\n$T_0=${:.1f} $^o$C\n$Td_0=${:.1f} $^o$C\n".format(var['p'][0].magnitude, var['T'][0].magnitude, var['Td'][0].magnitude)
+    info = info + "CAPE={:.0f} $J/kg$\n".format(CAPE.magnitude)
+    info = info + "CIN={:.0f} $J/kg$".format(CIN.magnitude)
     # print(list(ds.variables))
 
-    ft =  22
-    fig = plt.figure(figsize=(8, 7))
+    ft =  20
+    fig = plt.figure(figsize=(8, 7), dpi=300)
     skew = SkewT(fig, rotation=45)
 
     plt.tick_params(labelsize=ft-2)
@@ -58,5 +58,5 @@ def skewTlogP(var):
     skew.ax.set_xlabel("Temperature (\u00B0C)", fontsize=ft-2)
     skew.ax.set_ylim(1000, 100)
     skew.ax.set_xlim(-20, 40)
-    skew.ax.text(-68,130,info, fontsize=ft-4)
+    skew.ax.text(-69, 102,info, verticalalignment="top", fontsize=ft-4)
     return fig, skew
