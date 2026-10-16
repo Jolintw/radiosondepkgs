@@ -4,9 +4,11 @@ import metpy.calc as mpcalc
 from metpy.plots import SkewT
 from metpy.units import units
 from mypkgs.processor.numericalmethod import RightAngleInterpolater
+from radiosondepkgs.estimate.mixed_layer import mixed_layer_CAPE_CIN
 
 def skewTlogP(var):
     var = var.copy()
+    # MLCAPE, MLCIN = mixed_layer_CAPE_CIN(var["p"], var["T"], var["rh"], mixed_layer_depth = 10000, Punit = "hPa", Tunit = "degC", RHunit = "%", mixed_layer_depth_unit = "Pa")
     var['p'] = var['p']*units.hPa
     var['T'] = var['T']*units.degC
     if "Td" in var:
@@ -19,12 +21,15 @@ def skewTlogP(var):
     ds = mpcalc.parcel_profile_with_lcl_as_dataset(var['p'], var['T'], var['Td'])
     prof = mpcalc.parcel_profile(var['p'], var['T'][0], var['Td'][0]).to('degC')
     lcl = mpcalc.lcl(var['p'][0], var['T'][0], var['Td'][0])
+    MLCAPE, MLCIN = mpcalc.mixed_layer_cape_cin(var['p'], var['T'], var['Td'], depth=100 * units.hPa)
     CAPE, CIN = mpcalc.cape_cin(var['p'], var['T'], var['Td'], prof)
     info = ""
-    info = "$P_0=${:.1f} hPa\n$T_0=${:.1f} $^o$C\n$Td_0=${:.1f} $^o$C\n".format(var['p'][0].magnitude, var['T'][0].magnitude, var['Td'][0].magnitude)
-    info = info + "CAPE={:.0f} $J/kg$\n".format(CAPE.magnitude)
-    info = info + "CIN={:.0f} $J/kg$".format(CIN.magnitude)
+    # info = "$P_0=${:.1f} hPa\n$T_0=${:.1f} $^o$C\n$Td_0=${:.1f} $^o$C\n".format(var['p'][0].magnitude, var['T'][0].magnitude, var['Td'][0].magnitude)
+    # info = info + "CAPE={:.0f} $J/kg$\n".format(CAPE.magnitude)
+    # info = info + "CIN={:.0f} $J/kg$".format(CIN.magnitude)
     # print(list(ds.variables))
+    info = "GBCAPE={:.0f} $J/kg$\n".format(CAPE.magnitude)
+    info = info + "MLCAPE={:.0f} $J/kg$".format(MLCAPE.magnitude)
 
     ft =  20
     fig = plt.figure(figsize=(8, 7), dpi=300)
@@ -33,7 +38,7 @@ def skewTlogP(var):
     plt.tick_params(labelsize=ft-2)
     skew.plot(ds.isobaric, ds.ambient_temperature, 'r')
     skew.plot(ds.isobaric, ds.ambient_dew_point, 'g')
-    skew.plot(ds.isobaric, ds.parcel_temperature.metpy.convert_units('degC'), 'black')
+    # skew.plot(ds.isobaric, ds.parcel_temperature.metpy.convert_units('degC'), 'black')
     z_p100 = var["z"][np.argmin(np.abs(var['p'].magnitude - 100))]
     barb_z_intv = 500 # meter
     RAI = RightAngleInterpolater(X=var["z"], newX=np.arange(1, int(z_p100)//barb_z_intv+1) * barb_z_intv, equidistance=False)
